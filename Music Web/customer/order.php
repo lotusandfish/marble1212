@@ -8,45 +8,22 @@ $query = mysqli_query($conn, "SELECT * FROM user WHERE username = '".$_GET['cust
 $row = mysqli_fetch_array($query);
 
 if(isset($_POST['check-out'])){
-	$orderID = "NULL";
-	$username = $_GET['customer'];
 	$name = $_POST['name'];
 	$address = $_POST['address'];
 	$phone = $_POST['phone'];
-	$mail = $_POST['mail'];
-	$total_amount = $_POST['total_amount'];
-	$note = $_POST['note'];
+	$total_amount = $_SESSION['total_amount'];
 	$pay = $_POST['pay'];
+	$time = current_timestamp();
 	
-	$sql = "INSERT INTO orders VALUES ('$orderID','$username','$name','$address','$phone', '$mail' , '$total_amount' , '$note' , '$pay', current_timestamp())";
+	$sql = "INSERT INTO order(customer_name, customer_address, total_price, date_modified, customer_phone, pay) VALUES('$name', '$address', '$total_amount', '$time', '$phone', '$pay') RETURNING orderid";
 	$query = mysqli_query($conn, $sql);
+	
 	if($query){
-
-		$orderID = mysqli_insert_id($conn);
-		
-		foreach ($_SESSION['cart'] as $item) {
-
-			$songID = $item['songID']; 
-
-			$findOut = mysqli_fetch_array(mysqli_query($conn, "SELECT * FROM song WHERE songID = $songID"));
-
-			$songImg = $findOut['songImg'];
-
-			$songName = $findOut['songName'];
-
-			$price = $findOut['price'];
-
-			$sql = "INSERT INTO orderdetail VALUES ($orderID,$songID,'$songImg','$songName','$price')";
-
-			$ins = mysqli_query($conn,$sql);
-		}
-		
-
-		$_SESSION['purchased']=1;
-		header('location:YourSong.html');
+		echo "Oke!";
 	}
 	else{
-		echo mysqli_error($conn);
+		$res1 = pg_get_result($query);
+		echo pg_result_error($res1);
 	}	
 	
 }
